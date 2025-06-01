@@ -22,22 +22,34 @@ class NodeData:
         return f"{self.label} ({self.concept_type}, w={self.weight}, response={self.response})"
 
     def invoke(self, prompt, G=None, node_id=None):
+        # Assign a unique color to each node for the log
+        node_colors_palette = [
+            "#e6194b",  "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6",
+            "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000", "#aaffc3",
+            "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff"
+        ]
+        color_self = node_colors_palette[node_id % len(node_colors_palette)]
+        color_neighbor = node_colors_palette[(node_id+1) % len(node_colors_palette)]
         if node_id==0:
             self.response = node_invoke(self.label, prompt,role=self.concept_type)
             # Log the communication
-            st.session_state['comm_log'].append(f"{self.label} received prompt: {prompt}\n")
-            st.session_state['comm_log'].append(f"{self.label}: {self.response}\n")
+            st.session_state['comm_log'].append(f"<span style='color:{color_self}'>{self.label}</span> received prompt: {prompt}\n")
+            st.session_state['comm_log'].append(f"<span style='color:{color_self}'>{self.label}</span>: {self.response}\n")
             return self.response
         if G is not None and node_id is not None:
             neighbors = list(G.neighbors(node_id))
-            st.session_state['comm_log'].append(f"neighbors of {self.label}: {neighbors}")
-            for neighbor in neighbors:
+            st.session_state['comm_log'].append(f"<span style='color: #888'>Neighbors of {self.label}: {sorted(neighbors)}</span>\n")
+            for neighbor in sorted(neighbors):
                 neighbor_data = G.nodes[neighbor]['data']
                 if neighbor_data.response is not None:
                     self.response = node_invoke(self.label, neighbor_data.response,role=self.concept_type)
-                    st.session_state['comm_log'].append(f"{neighbor_data.label}----->{self.label}\n")
-                    st.session_state['comm_log'].append(f"{neighbor_data.label}'s message to {self.label}: {neighbor_data.response}\n")
-                    st.session_state['comm_log'].append(f"{self.label}: {self.response}\n")
+                    st.session_state['comm_log'].append(
+                        f"<span style='color:{color_neighbor}'><b>{neighbor_data.label}</b></span> "
+                        f"<span style='color: #888'>→</span> "
+                        f"<span style='color:{color_self}'><b>{self.label}</b></span><br>"
+                    )
+                    st.session_state['comm_log'].append(f"<span style='color:{color_neighbor}'>{neighbor_data.label}</span>'s message to <span style='color:{color_self}'>{self.label}</span>: {neighbor_data.response}\n")
+                    st.session_state['comm_log'].append(f"<span style='color:{color_self}'>{self.label}</span>: {self.response}\n")
             return self.response
 
 st.set_page_config(layout="wide")
