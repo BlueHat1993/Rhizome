@@ -57,7 +57,7 @@ st.set_page_config(layout="wide")
 st.title("Rhizome")
 # setting up Google API key in sidebar
 with st.sidebar.expander("🔑 Google API Key Setup", expanded=False):
-    api_key = st.text_area("Enter your Google API Key", value="", type="password")
+    api_key = st.text_area("Enter your Google API Key", value="")
     if st.button("Set Google API Key"):
         st.session_state["GOOGLE_API_KEY"] = api_key
         os.environ["GOOGLE_API_KEY"] = api_key  # Set for current process/session only
