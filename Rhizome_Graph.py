@@ -4,6 +4,7 @@ import random
 import plotly.graph_objs as go
 from llmcore import node_invoke
 import logging
+import os
 # Set up logging        
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -54,7 +55,12 @@ class NodeData:
 
 st.set_page_config(layout="wide")
 st.title("Rhizome")
-
+# setting up Google API key in sidebar
+with st.sidebar.expander("🔑 Google API Key Setup", expanded=False):
+    api_key = st.text_area("Enter your Google API Key",value=os.environ.get("GOOGLE_API_KEY", ""))
+    if st.button("Set Google API Key"):
+        os.environ["GOOGLE_API_KEY"] = api_key
+        st.success("Google API Key set in environment for this session.")
 # Sidebar controls
 num_nodes = st.sidebar.slider('Number of Nodes', min_value=10, max_value=500, value=3, step=1)
 avg_degree = st.sidebar.slider('Average Degree', min_value=1, max_value=50, value=4, step=1)

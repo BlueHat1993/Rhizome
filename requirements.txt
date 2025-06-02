@@ -3,3 +3,5 @@ matplotlib
 langchain 
 langchain-google-genai
 scipy
+plotly
+langchain-openai
